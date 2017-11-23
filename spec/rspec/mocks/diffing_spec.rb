@@ -6,6 +6,37 @@ RSpec.describe "Diffs printed when arguments don't match" do
     allow(RSpec::Mocks.configuration).to receive(:color?).and_return(false)
   end
 
+  it ".with({...}) diffing of hashes is incorrect" do
+    with_unfulfilled_double do |d|
+      expect(d).to receive(:foo).with ({
+        :firstfirst=>"foo",
+        :secondsecond => true,
+        :thirdthird => "bar",
+        :fourthfourth => true
+      })
+      d.foo({
+        :thirdthird => "bar",
+        :secondsecond => false,
+        :fourthfourth => true,
+        :firstfirst => "foo",
+      })
+    end
+  end
+
+  it "direct diff of hashes works fine" do
+      expect({
+        :firstfirst=>"foo",
+        :secondsecond => true,
+        :thirdthird => "bar",
+        :fourthfourth => true
+      }).to eq({
+        :thirdthird => "bar",
+        :secondsecond => false,
+        :fourthfourth => true,
+        :firstfirst => "foo",
+      })
+  end
+
   context "with a non matcher object" do
     it "does not print a diff when single line arguments are mismatched" do
       with_unfulfilled_double do |d|
